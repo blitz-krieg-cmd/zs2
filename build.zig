@@ -47,14 +47,6 @@ pub fn build(b: *std.Build) void {
     elf.setLinkerScript(b.path("src/link.ld"));
     b.installArtifact(elf);
 
-    const obj_copy = b.addObjCopy(elf.getEmittedBin(), .{
-        .format = .bin,
-    });
-    obj_copy.step.dependOn(&elf.step);
-
-    const copy_bin = b.addInstallBinFile(obj_copy.getOutput(), "example.elf");
-    b.default_step.dependOn(&copy_bin.step);
-
     // Check
 
     const exe_check = b.addExecutable(.{
@@ -75,15 +67,21 @@ pub fn build(b: *std.Build) void {
 
     // Run
 
-    const run_step = b.step("run", "run in pcsx2");
+    // const run_step = b.step("run", "run in pcsx2");
 
-    const tool_run = b.addSystemCommand(&.{"pcsx2-qt"});
-    tool_run.addArgs(&.{
-        "-batch",
-        "-elf",
-        "-slowboot",
-    });
-    tool_run.addFileArg(b.path("zig-out/bin/example_zig.elf"));
+    // run_step.dependOn(&elf.step);
+    // elf.no_builtin = true;
+    // elf.link_emit_relocs = false;
+    // elf.bundle_compiler_rt = true;
+    // elf.bundle_ubsan_rt = true;
+    // elf.setLinkerScript(b.path("src/link.ld"));
+    // const tool_run = b.addSystemCommand(&.{"pcsx2-qt"});
+    // tool_run.addArgs(&.{
+    //     "-batch",
+    //     "-elf",
+    //     "-slowboot",
+    // });
+    // tool_run.addFileArg(b.path("zig-out/bin/example_zig.elf"));
 
-    run_step.dependOn(&tool_run.step);
+    // run_step.dependOn(&tool_run.step);
 }
