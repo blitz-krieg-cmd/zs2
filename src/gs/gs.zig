@@ -1,5 +1,12 @@
 pub const gs = @This();
 
+pub const RGB = packed struct {
+    r: u8,
+    g: u8,
+    b: u8,
+    _: u8 = 0,
+};
+
 // Registers
 
 // GS privileged registers must be accessed using LD/SD instructions.
