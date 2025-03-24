@@ -2,15 +2,6 @@ const ee = @import("ee.zig").ee;
 
 pub const timer = @This();
 
-// The EE has 4 timers used to generate interrupts as time-out timers or interval timers.
-
-// The EE has 4 independent timers numbered 0, 1, 2 and 3.
-// Each timer has a 16-bit counter. The bus clock (BUSCLK, 1/16 of BUSCLK and 1/256 of BUSCLK) or the external clock (H-BLNK) performs counting.
-// Since the EE uses the external H-BLNK/V-BLNK as a gate signal, counting operations can be synchronized to the screen image.
-// Timer interrupts occur when the counter value reaches a certain value specified as the reference value, or when it overflows.
-// The status register flag indicates which of the above has caused the interrupt.
-// Timer 0 and timer 1 have a hold register for recording the counter value when an SBUS interrupt occurs
-
 // Each timer has the registers described below.
 
 // Tn_COUNT: Counter value (the upper 16 bits are fixed to 0)
