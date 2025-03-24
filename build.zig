@@ -30,14 +30,14 @@ pub fn createApplication(
     const target = b.resolveTargetQuery(target_EE);
     const optimize: std.builtin.OptimizeMode = if (mode == .Release) .ReleaseSafe else .Debug;
 
-    const zs = getLibrary(b, target, optimize);
+    const zs2 = getLibrary(b, target, optimize);
 
     const app = b.createModule(.{
         .root_source_file = b.path(src_root),
         .target = target,
         .optimize = optimize,
         .imports = &.{
-            .{ .name = "zs", .module = zs.root_module },
+            .{ .name = "zs", .module = zs2.root_module },
         },
     });
 
@@ -48,7 +48,7 @@ pub fn createApplication(
         .target = target,
         .optimize = optimize,
         .imports = &.{
-            .{ .name = "zs", .module = zs.root_module },
+            .{ .name = "zs2", .module = zs2.root_module },
             .{ .name = "app", .module = app },
         },
     });
@@ -60,7 +60,7 @@ pub fn createApplication(
         .use_lld = true,
         .linkage = .static,
     });
-    elf.linkLibrary(zs);
+    elf.linkLibrary(zs2);
     elf.no_builtin = true;
     elf.link_emit_relocs = false;
     elf.bundle_compiler_rt = true;
@@ -76,7 +76,7 @@ fn getLibrary(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.bui
     const lib: *std.Build.Step.Compile = builder.addStaticLibrary(.{
         .name = "zs",
         .root_module = builder.createModule(.{
-            .root_source_file = builder.path("src/zs.zig"),
+            .root_source_file = builder.path("src/zs2.zig"),
             .target = target,
             .optimize = optimize,
         }),
@@ -87,5 +87,5 @@ fn getLibrary(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.bui
 }
 
 fn getBuilder(b: *std.Build) *std.Build {
-    return b.dependency("zs", .{ .skipbuild = true }).builder;
+    return b.dependency("zs2", .{ .skipbuild = true }).builder;
 }

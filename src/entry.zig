@@ -1,7 +1,7 @@
 const std = @import("std");
 
 const app = @import("app");
-const zs = @import("zs");
+const zs2 = @import("zs2");
 
 comptime {
     if (!@hasDecl(app, "init") or
@@ -12,11 +12,11 @@ comptime {
     {
         @compileError(
             \\You must provide following 5 public api in your game code:
-            \\    pub fn init(zs.Context) !void
-            \\    pub fn event(zs.Context, zs.Event) !void
-            \\    pub fn update(zs.Context) !void
-            \\    pub fn draw(zs.Context) !void
-            \\    pub fn quit(zs.Context) void
+            \\    pub fn init(zs2.Context) !void
+            \\    pub fn event(zs2.Context, zs.Event) !void
+            \\    pub fn update(zs2.Context) !void
+            \\    pub fn draw(zs2.Context) !void
+            \\    pub fn quit(zs2.Context) void
         );
     }
     switch (@typeInfo(@typeInfo(@TypeOf(app.init)).@"fn".return_type.?)) {
@@ -51,7 +51,7 @@ comptime {
 
 export fn __start() callconv(.{ .mips_o32 = .{} }) void {
     // Init context
-    var ctx: zs.Context = .{};
+    var ctx: zs2.Context = .{};
 
     app.init(ctx) catch {};
     defer app.quit(ctx);
