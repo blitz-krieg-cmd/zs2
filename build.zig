@@ -86,7 +86,6 @@ fn getLibrary(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.bui
     return lib;
 }
 
-// Get jok's own builder from project's
 fn getBuilder(b: *std.Build) *std.Build {
     return b.dependency("zs", .{ .skipbuild = true }).builder;
 }
