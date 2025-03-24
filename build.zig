@@ -19,6 +19,30 @@ pub fn build(b: *std.Build) void {
     if (b.option(bool, "skipbuild", "skip all build jobs, false by default.")) |skip| {
         if (skip) return;
     }
+
+    const mod = b.createModule(.{
+        .root_source_file = b.path("src/dev_main.zig"),
+        .target = b.resolveTargetQuery(target_EE),
+        .optimize = .Debug,
+        .pic = false,
+        .strip = false,
+        .link_libc = false,
+    });
+
+    // Create elf
+    const elf = b.addExecutable(.{
+        .name = "zs2_test.elf",
+        .root_module = mod,
+        .use_lld = true,
+        .linkage = .static,
+    });
+    elf.no_builtin = true;
+    elf.link_emit_relocs = false;
+    elf.bundle_compiler_rt = true;
+    elf.bundle_ubsan_rt = true;
+    elf.setLinkerScript(b.path("src/link.ld"));
+
+    b.installArtifact(elf);
 }
 
 pub fn createApplication(
@@ -53,7 +77,7 @@ pub fn createApplication(
         },
     });
 
-    // Create executable
+    // Create elf
     const elf = builder.addExecutable(.{
         .name = std.fmt.allocPrint(b.allocator, "{s}.{s}", .{ name, "elf" }) catch unreachable,
         .root_module = root,
