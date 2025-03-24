@@ -65,7 +65,7 @@ pub fn createApplication(
     elf.link_emit_relocs = false;
     elf.bundle_compiler_rt = true;
     elf.bundle_ubsan_rt = true;
-    elf.setLinkerScript(builder.path("link.ld"));
+    elf.setLinkerScript(builder.path("src/link.ld"));
 
     return elf;
 }
