@@ -10,78 +10,83 @@ const target_EE: std.Target.Query = .{
     .abi = .eabi,
 };
 
-const target_IOP: std.Target.Query = .{
-    .cpu_arch = .mipsel,
-    .cpu_model = .{ .explicit = &std.Target.mips.cpu.mips1 },
-    .os_tag = .freestanding,
-    .ofmt = .elf,
-    .dynamic_linker = .none,
-    .cpu_features_add = std.Target.mips.cpu.mips1.features,
-    .abi = .eabi,
+pub const Mode = enum {
+    Development,
+    Release,
 };
 
 pub fn build(b: *std.Build) void {
-    // Module
+    if (b.option(bool, "skipbuild", "skip all build jobs, false by default.")) |skip| {
+        if (skip) return;
+    }
+}
 
-    const exe_mod = b.createModule(.{
-        .root_source_file = b.path("src/main.zig"),
-        .target = b.resolveTargetQuery(target_EE),
-        .optimize = .Debug,
-        .pic = false,
-        .strip = false,
-        .link_libc = false,
+pub fn createApplication(
+    b: *std.Build,
+    name: []const u8,
+    src_root: []const u8,
+    mode: Mode,
+) *std.Build.Step.Compile {
+    const target = b.resolveTargetQuery(target_EE);
+    const optimize: std.builtin.OptimizeMode = if (mode == .Release) .ReleaseSafe else .Debug;
+
+    const zs = getLibrary(b, target, optimize);
+
+    const app = b.createModule(.{
+        .root_source_file = b.path(src_root),
+        .target = target,
+        .optimize = optimize,
+        .imports = &.{
+            .{ .name = "zs", .module = zs.root_module },
+        },
     });
 
-    // Elf
+    // Create root module
+    const builder = getBuilder(b);
+    const root = b.createModule(.{
+        .root_source_file = builder.path("src/entry.zig"),
+        .target = target,
+        .optimize = optimize,
+        .imports = &.{
+            .{ .name = "zs", .module = zs.root_module },
+            .{ .name = "app", .module = app },
+        },
+    });
 
-    const elf = b.addExecutable(.{
-        .name = "example_zig.elf",
-        .root_module = exe_mod,
+    // Create executable
+    const elf = builder.addExecutable(.{
+        .name = std.fmt.allocPrint(b.allocator, "{s}.{s}", .{ name, "elf" }) catch unreachable,
+        .root_module = root,
         .use_lld = true,
         .linkage = .static,
     });
+    elf.linkLibrary(zs);
     elf.no_builtin = true;
     elf.link_emit_relocs = false;
     elf.bundle_compiler_rt = true;
     elf.bundle_ubsan_rt = true;
-    elf.setLinkerScript(b.path("src/link.ld"));
-    b.installArtifact(elf);
+    elf.setLinkerScript(builder.path("link.ld"));
 
-    // Check
+    return elf;
+}
 
-    const exe_check = b.addExecutable(.{
-        .name = "check",
-        .root_module = exe_mod,
+fn getLibrary(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
+    const builder = getBuilder(b);
+
+    const lib: *std.Build.Step.Compile = builder.addStaticLibrary(.{
+        .name = "zs",
+        .root_module = builder.createModule(.{
+            .root_source_file = builder.path("src/zs.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
+        .use_lld = true,
     });
-    const check = b.step("check", "Check if compiles");
-    check.dependOn(&exe_check.step);
 
-    // Test
+    return lib;
+}
 
-    const exe_unit_tests = b.addTest(.{
-        .root_module = exe_mod,
-    });
-    const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
-    const test_step = b.step("test", "Run unit tests");
-    test_step.dependOn(&run_exe_unit_tests.step);
-
-    // Run
-
-    // const run_step = b.step("run", "run in pcsx2");
-
-    // run_step.dependOn(&elf.step);
-    // elf.no_builtin = true;
-    // elf.link_emit_relocs = false;
-    // elf.bundle_compiler_rt = true;
-    // elf.bundle_ubsan_rt = true;
-    // elf.setLinkerScript(b.path("src/link.ld"));
-    // const tool_run = b.addSystemCommand(&.{"pcsx2-qt"});
-    // tool_run.addArgs(&.{
-    //     "-batch",
-    //     "-elf",
-    //     "-slowboot",
-    // });
-    // tool_run.addFileArg(b.path("zig-out/bin/example_zig.elf"));
-
-    // run_step.dependOn(&tool_run.step);
+// Get jok's own builder from project's
+fn getBuilder(b: *std.Build) *std.Build {
+    return b.dependency("zs", .{ .skipbuild = true }).builder;
 }
