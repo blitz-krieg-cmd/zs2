@@ -12,11 +12,11 @@ comptime {
     {
         @compileError(
             \\You must provide following 5 public api in your game code:
-            \\    pub fn init() !void
-            \\    pub fn event() !void
-            \\    pub fn update() !void
-            \\    pub fn draw() !void
-            \\    pub fn quit() void
+            \\    pub fn init(zs.Context) !void
+            \\    pub fn event(zs.Context, zs.Event) !void
+            \\    pub fn update(zs.Context) !void
+            \\    pub fn draw(zs.Context) !void
+            \\    pub fn quit(zs.Context) void
         );
     }
     switch (@typeInfo(@typeInfo(@TypeOf(app.init)).@"fn".return_type.?)) {
