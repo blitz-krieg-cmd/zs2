@@ -1,0 +1,10 @@
+.{
+    .name = .zs,
+    .version = "0.0.1",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+    .dependencies = .{},
+}
