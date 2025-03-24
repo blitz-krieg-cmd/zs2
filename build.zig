@@ -10,16 +10,6 @@ const target_EE: std.Target.Query = .{
     .abi = .eabi,
 };
 
-const target_IOP: std.Target.Query = .{
-    .cpu_arch = .mipsel,
-    .cpu_model = .{ .explicit = &std.Target.mips.cpu.mips1 },
-    .os_tag = .freestanding,
-    .ofmt = .elf,
-    .dynamic_linker = .none,
-    .cpu_features_add = std.Target.mips.cpu.mips1.features,
-    .abi = .eabi,
-};
-
 pub fn build(b: *std.Build) void {
     // Module
 
@@ -64,24 +54,4 @@ pub fn build(b: *std.Build) void {
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_exe_unit_tests.step);
-
-    // Run
-
-    // const run_step = b.step("run", "run in pcsx2");
-
-    // run_step.dependOn(&elf.step);
-    // elf.no_builtin = true;
-    // elf.link_emit_relocs = false;
-    // elf.bundle_compiler_rt = true;
-    // elf.bundle_ubsan_rt = true;
-    // elf.setLinkerScript(b.path("src/link.ld"));
-    // const tool_run = b.addSystemCommand(&.{"pcsx2-qt"});
-    // tool_run.addArgs(&.{
-    //     "-batch",
-    //     "-elf",
-    //     "-slowboot",
-    // });
-    // tool_run.addFileArg(b.path("zig-out/bin/example_zig.elf"));
-
-    // run_step.dependOn(&tool_run.step);
 }
