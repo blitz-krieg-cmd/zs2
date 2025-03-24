@@ -1,7 +1,7 @@
 const std = @import("std");
 
-const ee = @import("ee/ee.zig").ee;
-const gs = @import("gs/gs.zig");
+pub const ee = @import("ee/ee.zig").ee;
+pub const gs = @import("gs/gs.zig").gs;
 
 pub const Event = struct {};
 
