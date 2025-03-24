@@ -35,7 +35,7 @@ pub fn build(b: *std.Build) void {
     // Elf
 
     const elf = b.addExecutable(.{
-        .name = "example_zig.elf",
+        .name = "example.elf",
         .root_module = exe_mod,
         .use_lld = true,
         .linkage = .static,
@@ -44,7 +44,7 @@ pub fn build(b: *std.Build) void {
     elf.link_emit_relocs = false;
     elf.bundle_compiler_rt = true;
     elf.bundle_ubsan_rt = true;
-    elf.setLinkerScript(b.path("src/link.ld"));
+    elf.setLinkerScript(b.path("link.ld"));
     b.installArtifact(elf);
 
     // Check
