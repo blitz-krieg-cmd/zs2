@@ -43,6 +43,30 @@ pub fn build(b: *std.Build) void {
     elf.setLinkerScript(b.path("src/link.ld"));
 
     b.installArtifact(elf);
+
+    // Check
+
+    const test_mod = b.createModule(.{
+        .root_source_file = b.path("src/test.zig"),
+        .target = b.standardTargetOptions(.{}),
+        .optimize = b.standardOptimizeOption(.{}),
+    });
+
+    const exe_check = b.addExecutable(.{
+        .name = "check",
+        .root_module = test_mod,
+    });
+    const check = b.step("check", "Check if compiles");
+    check.dependOn(&exe_check.step);
+
+    // Test
+
+    const exe_unit_tests = b.addTest(.{
+        .root_module = test_mod,
+    });
+    const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
+    const test_step = b.step("test", "Run unit tests");
+    test_step.dependOn(&run_exe_unit_tests.step);
 }
 
 pub fn createApplication(
