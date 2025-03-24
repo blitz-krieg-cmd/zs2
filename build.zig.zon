@@ -1,5 +1,6 @@
 .{
     .name = .zs2,
+    .fingerprint = 0x6ae24f2155a57083,
     .version = "0.0.1",
     .paths = .{
         "build.zig",
