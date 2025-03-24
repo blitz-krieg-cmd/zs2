@@ -1,4 +1,4 @@
-# ZS2
+# ZS2 - Completely Work In Progress
 An application framework for the PlayStation 2 written in Zig.
 
 ## How to start?
